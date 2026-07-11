@@ -1,0 +1,47 @@
+services:
+
+  mysql:
+    image: mysql:8.4
+    container_name: deploylab-mysql
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: deploylab
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - deploylab-mysql-data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: deploylab-app:v3
+    container_name: deploylab-app
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/deploylab
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+
+    ports:
+      - "8080:8080"
+
+
+volumes:
+  deploylab-mysql-data:
+    external: true
