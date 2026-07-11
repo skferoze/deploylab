@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
-  build-and-test:
+  build-test-and-push:
     runs-on: ubuntu-latest
 
     services:
@@ -28,6 +32,8 @@ jobs:
       DB_URL: jdbc:mysql://127.0.0.1:3306/deploylab
       DB_USERNAME: root
       DB_PASSWORD: root123
+      AWS_REGION: ap-south-1
+      ECR_REPOSITORY: deploylab
 
     steps:
       - name: Checkout source code
@@ -49,5 +55,25 @@ jobs:
       - name: Package application
         run: ./mvnw package -DskipTests
 
+      - name: Configure AWS credentials using OIDC
+        if: github.event_name == 'push'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        if: github.event_name == 'push'
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build Docker image
         run: docker build -t deploylab-app:${{ github.sha }} .
+
+      - name: Tag and push image to ECR
+        if: github.event_name == 'push'
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker tag deploylab-app:${{ github.sha }} $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
