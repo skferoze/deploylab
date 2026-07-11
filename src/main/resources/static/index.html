@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DeployLab Task Manager</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>DeployLab</h1>
+    <p class="subtitle">Task Manager</p>
+
+    <form id="taskForm">
+
+        <input
+                type="text"
+                id="title"
+                placeholder="Task title"
+                required
+        >
+
+        <textarea
+                id="description"
+                placeholder="Task description"
+        ></textarea>
+
+        <button type="submit">
+            Add Task
+        </button>
+
+    </form>
+
+
+    <div class="task-header">
+
+        <h2>My Tasks</h2>
+
+        <button
+                id="refreshButton"
+                class="refresh-button"
+                type="button"
+        >
+            Refresh
+        </button>
+
+    </div>
+
+
+    <div id="taskList">
+
+        <!-- JavaScript will display tasks here -->
+
+    </div>
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
