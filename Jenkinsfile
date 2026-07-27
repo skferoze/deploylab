@@ -15,6 +15,12 @@ pipeline {
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -f dockerfile -t deploylab:latest .'
+            }
+        }
+
     }
 
     post {
